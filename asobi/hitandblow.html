@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ヒット＆ブロー</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f8ff;
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 3rem;
+      color: #4a90e2;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      width: 120px;
+      padding: 10px;
+      font-size: 1.5rem;
+      border: 2px solid #4a90e2;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin: 10px;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    button:hover:enabled {
+      background-color: #357ab8;
+    }
+    .result, .timer {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: #333;
+    }
+    .history {
+      margin-top: 30px;
+      border-collapse: collapse;
+      width: 80%;
+      max-width: 500px;
+      margin: 20px auto;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .history th, .history td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: right;
+      font-size: 1.1rem;
+    }
+    .history th {
+      background-color: #4a90e2;
+      color: white;
+    }
+    .history tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .history tr:hover {
+      background-color: #f1f1f1;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 2rem;
+      display: none;
+      flex-direction: column;
+    }
+    .overlay button {
+      margin-top: 20px;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hit and Blow</h1>
+  <button id="startButton" onclick="startGame()">スタート</button>
+  <br><br>
+  <input type="text" id="guessInput" maxlength="4" placeholder="4桁の数字" disabled>
+  <button id="checkButton" onclick="checkGuess()" disabled>送信</button>
+  <button id="giveUpButton" onclick="giveUp()" disabled>ギブアップ</button>
+  <div class="timer" id="timer">時間: 0 秒</div>
+  <div class="result" id="result"></div>
+  <table class="history" id="historyTable">
+    <tr>
+      <th>試行</th>
+      <th>予想</th>
+      <th>結果</th>
+    </tr>
+  </table>
+
+  <div class="overlay" id="winOverlay">
+    <div id="winMessage"></div>
+    <button onclick="resetGame()">もう一度プレイ</button>
+  </div>
+
+  <script>
+    let answer;
+    let attempts = 0;
+    let timer = 0;
+    let timerInterval;
+    let gameStarted = false;
+
+    function generateNumber() {
+      let digits = [];
+      while (digits.length < 4) {
+        let num = Math.floor(Math.random() * 9) + 1; // 1から9の数字を生成
+        if (!digits.includes(num)) {
+          digits.push(num);
+        }
+      }
+      return digits.join('');
+    }
+
+    function startGame() {
+      answer = generateNumber();
+      attempts = 0;
+      timer = 0;
+      gameStarted = true;
+
+      document.getElementById('timer').textContent = '時間: 0 秒';
+      document.getElementById('result').textContent = '';
+      document.getElementById('guessInput').value = '';
+      document.getElementById('winOverlay').style.display = 'none';
+
+      // タイマー開始
+      clearInterval(timerInterval);
+      timerInterval = setInterval(updateTimer, 1000);
+
+      // ボタンと入力欄を有効化
+      document.getElementById('guessInput').disabled = false;
+      document.getElementById('checkButton').disabled = false;
+      document.getElementById('giveUpButton').disabled = false;
+      document.getElementById('startButton').disabled = true;
+
+      // 履歴をクリア
+      const historyTable = document.getElementById('historyTable');
+      while (historyTable.rows.length > 1) {
+        historyTable.deleteRow(1);
+      }
+    }
+
+    function resetGame() {
+  // スタート前の状態に戻す
+  gameStarted = false;
+  clearInterval(timerInterval);
+
+  document.getElementById('winOverlay').style.display = 'none';
+  document.getElementById('startButton').disabled = false;
+  document.getElementById('guessInput').disabled = true;
+  document.getElementById('checkButton').disabled = true;
+  document.getElementById('giveUpButton').disabled = true;
+
+  document.getElementById('timer').textContent = '時間: 0 秒';
+  document.getElementById('result').textContent = '';
+  document.getElementById('guessInput').value = '';
+
+  // 履歴をクリア
+  const historyTable = document.getElementById('historyTable');
+  while (historyTable.rows.length > 1) {
+    historyTable.deleteRow(1);
+  }
+}
+
+
+
+    function updateTimer() {
+      if (gameStarted) {
+        timer++;
+        document.getElementById('timer').textContent = `時間: ${timer} 秒`;
+      }
+    }
+
+    function checkGuess() {
+      const guess = document.getElementById('guessInput').value;
+      if (!/^\d{4}$/.test(guess) || new Set(guess).size !== 4) {
+        alert('4桁の異なる数字を入力してください。');
+        return;
+      }
+
+      attempts++;
+      let hits = 0, blows = 0;
+
+      for (let i = 0; i < 4; i++) {
+        if (guess[i] === answer[i]) {
+          hits++;
+        } else if (answer.includes(guess[i])) {
+          blows++;
+        }
+      }
+
+      document.getElementById('result').textContent = `${hits} HIT, ${blows} BLOW`;
+
+      const historyTable = document.getElementById('historyTable');
+      const newRow = historyTable.insertRow(-1);
+      newRow.insertCell(0).textContent = attempts;
+      newRow.insertCell(1).textContent = guess;
+      newRow.insertCell(2).textContent = `${hits} HIT, ${blows} BLOW`;
+
+      if (hits === 4) {
+        clearInterval(timerInterval);
+        showWinScreen();
+      }
+
+      document.getElementById('guessInput').value = '';
+    }
+
+    function showWinScreen() {
+      document.getElementById('winMessage').textContent = `正解です！ ${attempts} 回目で当たりました！\n所要時間: ${timer} 秒`;
+      document.getElementById('winOverlay').style.display = 'flex';
+    }
+
+
+
+    function giveUp() {
+      document.getElementById('winMessage').textContent = `ギブアップです。正解は ${answer} です。`;
+      document.getElementById('winOverlay').style.display = 'flex';
+      clearInterval(timerInterval);
+    }
+  </script>
+</body>
+</html>

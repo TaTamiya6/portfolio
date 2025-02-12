@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Website</title>
+</head>
+<style>
+    /* ベースのスタイル */
+body {
+  font-family: 'Mv Boli',sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+header {
+  background: burlywood;
+  color: white;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+header nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+header nav ul li {
+  display: inline;
+  margin: 0 15px;
+}
+
+header nav ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+main {
+  padding: 2rem;
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+footer {
+  background: #333;
+  color: white;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+</style>
+<body>
+  <header>
+    <h1>portfolio</h1>
+    <nav>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="about">
+      <h2>About</h2>
+      <!-- 安達愛理
+      2001年生まれ
+      自分のできること
+      自分の強み -->
+      <p>自己紹介</p>
+    </section>
+
+    <section id="services">
+      <h2>works</h2>
+      <p>作品</p>
+    </section>
+
+    <section id="contact">
+      <h2>Contact</h2>
+      <p>お問い合わせはこちらからどうぞ。</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 My portfolio</p>
+  </footer>
+
+  <script >// 簡単な動作例: ページ読み込み時にメッセージを表示
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("ページが読み込まれました！");
+    });
+    </script>
+</body>
+</html>
